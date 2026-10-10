@@ -1,0 +1,31 @@
+# TJD-199 baseline: build -> attest -> gated deploy (environment dev-baseline, required reviewer).
+# The deploy job performs no real deployment; it only proves the gate holds.
+name: tjd199-baseline
+on:
+  push:
+    branches: [tjd-199-baseline]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build bundle
+        run: |
+          mkdir -p out
+          tar --sort=name --mtime='2026-01-01' --owner=0 --group=0 -czf out/bundle.tgz README.md
+          sha256sum out/bundle.tgz
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: out/bundle.tgz
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: dev-baseline
+    steps:
+      - run: echo "would deploy bundle here (no-op)"
