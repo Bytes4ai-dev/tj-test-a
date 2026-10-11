@@ -1,0 +1,68 @@
+# TJD-191 (G-32, PDD 5.5.4): TEMPLATE cloudbuild.yaml for the customer app repo (Bytes4ai-dev). Copied into the app repo
+# root by the installation guide. Runs as tj-cp-cloudbuild (build + push + sign with the provenance issuer key; no run.*).
+# Output: the image, plus a DSSE envelope holding an in-toto SLSA v1 statement whose subject is the pushed digest,
+# resolvedDependencies[0] = git+https://github.com/$REPO_FULL_NAME @ $COMMIT_SHA, signed by Cloud KMS ($_TJ_PROVENANCE_KEY).
+# The envelope is pushed next to the image as an OCI artifact (tag sha256-<digest>.provenance). The Executor verifies it with
+# `tj_baseline.py verify-provenance` against the trust root (the provenance key's public key) before any T2 rollout.
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "${_TJ_REPO}/app:${COMMIT_SHA}", "."]
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: ["push", "${_TJ_REPO}/app:${COMMIT_SHA}"]
+  - id: statement
+    name: python:3.12-slim
+    entrypoint: python3
+    args:
+      - -c
+      - |
+        import json
+        st ={"_type": "https://in-toto.io/Statement/v1",
+              "subject": [{"name": "${_TJ_REPO}/app", "digest": {"sha256": open("/workspace/image.sha256").read().strip()}}],
+              "predicateType": "https://slsa.dev/provenance/v1",
+              "predicate": {"buildDefinition": {"buildType": "https://tejasland.dev/cloudbuild/v1",
+                                                "externalParameters": {"trigger": "${TRIGGER_NAME}"},
+                                                "resolvedDependencies": [{"uri": "git+https://github.com/${REPO_FULL_NAME}",
+                                                                          "digest": {"gitCommit": "${COMMIT_SHA}"}}]},
+                            "runDetails": {"builder": {"id": "https://cloudbuild.googleapis.com/${PROJECT_ID}/${LOCATION}"},
+                                           "metadata": {"invocationId": "${BUILD_ID}"}}}}
+        body = json.dumps(st, sort_keys=True, separators=(",", ":")).encode()
+        t = b"application/vnd.in-toto+json"
+        open("/workspace/statement.json", "wb").write(body)
+        open("/workspace/pae.bin", "wb").write(b"DSSEv1 %d %s %d %s" % (len(t), t, len(body), body))
+    waitFor: ["digest"]
+  - id: digest
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args: ["-c", "docker inspect --format='{{index .RepoDigests 0}}' ${_TJ_REPO}/app:${COMMIT_SHA} | sed 's/.*@sha256://' > /workspace/image.sha256"]
+    waitFor: ["push"]
+  - id: sign
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        gcloud kms asymmetric-sign --digest-algorithm=sha256 --version="$(echo ${_TJ_PROVENANCE_KEY} | cut -d/ -f10)" \
+          --key="$(echo ${_TJ_PROVENANCE_KEY} | cut -d/ -f8)" --keyring="$(echo ${_TJ_PROVENANCE_KEY} | cut -d/ -f6)" \
+          --location="$(echo ${_TJ_PROVENANCE_KEY} | cut -d/ -f4)" --input-file=/workspace/pae.bin --signature-file=/workspace/sig.bin
+        python3 - <<'EOF'
+        import base64, json
+        env = {"payloadType": "application/vnd.in-toto+json",
+               "payload": base64.b64encode(open("/workspace/statement.json", "rb").read()).decode(),
+               "signatures": [{"keyid": "${_TJ_PROVENANCE_KEY}", "sig": base64.b64encode(open("/workspace/sig.bin", "rb").read()).decode()}]}
+        json.dump(env, open("/workspace/provenance.dsse.json", "w"))
+        EOF
+    waitFor: ["statement"]
+  - id: attach
+    name: ghcr.io/oras-project/oras:v1.2.0
+    entrypoint: sh
+    args: ["-c", "cd /workspace && oras push ${_TJ_REPO}/app:sha256-$(cat image.sha256).provenance --artifact-type application/vnd.dsse.envelope.v1+json provenance.dsse.json"]
+    waitFor: ["sign"]
+options:
+  logging: CLOUD_LOGGING_ONLY
+  requestedVerifyOption: VERIFIED
+substitutions:
+  _TJ_PROVENANCE_KEY: ""
+  _TJ_REPO: ""
