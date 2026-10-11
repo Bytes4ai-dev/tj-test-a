@@ -11,6 +11,11 @@ steps:
   - id: push
     name: gcr.io/cloud-builders/docker
     args: ["push", "${_TJ_REPO}/app:${COMMIT_SHA}"]
+  - id: digest
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args: ["-c", "docker inspect --format='{{index .RepoDigests 0}}' ${_TJ_REPO}/app:${COMMIT_SHA} | sed 's/.*@sha256://' > /workspace/image.sha256"]
+    waitFor: ["push"]
   - id: statement
     name: python:3.12-slim
     entrypoint: python3
@@ -32,11 +37,6 @@ steps:
         open("/workspace/statement.json", "wb").write(body)
         open("/workspace/pae.bin", "wb").write(b"DSSEv1 %d %s %d %s" % (len(t), t, len(body), body))
     waitFor: ["digest"]
-  - id: digest
-    name: gcr.io/cloud-builders/docker
-    entrypoint: bash
-    args: ["-c", "docker inspect --format='{{index .RepoDigests 0}}' ${_TJ_REPO}/app:${COMMIT_SHA} | sed 's/.*@sha256://' > /workspace/image.sha256"]
-    waitFor: ["push"]
   - id: sign
     name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: bash
