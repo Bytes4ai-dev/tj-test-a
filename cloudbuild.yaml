@@ -8,7 +8,7 @@
 steps:
   - id: build
     name: gcr.io/cloud-builders/docker
-    args: ["build", "-t", "${_TJ_REPO}/app:${COMMIT_SHA}", "."]
+    args: ["build", "--build-arg", "TJ_SITE_FIXTURES=${_TJ_SITE_FIXTURES}", "-t", "${_TJ_REPO}/app:${COMMIT_SHA}", "."]
   - id: push
     name: gcr.io/cloud-builders/docker
     args: ["push", "${_TJ_REPO}/app:${COMMIT_SHA}"]
@@ -67,3 +67,4 @@ options:
 substitutions:
   _TJ_PROVENANCE_KEY: ""
   _TJ_REPO: ""
+  _TJ_SITE_FIXTURES: ""
