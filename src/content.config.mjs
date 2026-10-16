@@ -39,13 +39,20 @@ function guardedGlob() {
 
 const posts = defineCollection({
   loader: guardedGlob(),
-  schema: z.object({
-    title: z.string(),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).min(1),
-    description: z.string(),
-    fixture: z.boolean().default(false),
-  }),
+  // TJD-643: the migrated donor posts carry `excerpt` (+ `draft`) and stay byte-for-byte as the donor wrote them,
+  // so either `description` or `excerpt` is accepted; pages read `description`.
+  schema: z
+    .object({
+      title: z.string(),
+      date: z.coerce.date(),
+      tags: z.array(z.string()).min(1),
+      description: z.string().optional(),
+      excerpt: z.string().optional(),
+      draft: z.boolean().default(false),
+      fixture: z.boolean().default(false),
+    })
+    .refine((d) => d.description || d.excerpt, { message: 'description or excerpt is required' })
+    .transform((d) => ({ ...d, description: d.description || d.excerpt })),
 });
 
 export const collections = { posts };

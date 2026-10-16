@@ -1,5 +1,7 @@
 ---
+// TJD-643 Timeline shell: title + year chips. The retrospective content arrives in Phase 3.
 import Base from '../layouts/Base.astro';
+const years = ['2024', '2025', '2026'];
 ---
 
 <Base
@@ -11,13 +13,28 @@ import Base from '../layouts/Base.astro';
   <section>
     <div class="wrap">
       <h1>How we got here 2024-2026</h1>
-      <div class="filter-chips" aria-label="Years (layout only)">
-        <span class="chip">2024</span><span class="chip">2025</span><span class="chip">2026</span>
+      <div class="filter-chips" role="group" aria-label="Years">
+        {years.map((y, i) => <button type="button" data-year={y} aria-pressed={i === 0 ? 'true' : 'false'}>{y}</button>)}
       </div>
-      <div class="card placeholder">
-        <p class="label">Placeholder</p>
-        <p>The retrospective series arrives in a later phase. This page shows the layout only.</p>
-      </div>
+      {years.map((y, i) => (
+        <div class="card placeholder timeline-year" data-year={y} hidden={i !== 0}>
+          <p class="label">{y} · Placeholder</p>
+          <p>The retrospective series arrives in a later phase. This page shows the layout only.</p>
+        </div>
+      ))}
     </div>
   </section>
+  <script is:inline>
+    (function () {
+      var chips = Array.prototype.slice.call(document.querySelectorAll('.filter-chips button'));
+      var panels = Array.prototype.slice.call(document.querySelectorAll('.timeline-year'));
+      chips.forEach(function (b) {
+        b.addEventListener('click', function () {
+          var y = b.getAttribute('data-year');
+          chips.forEach(function (c) { c.setAttribute('aria-pressed', String(c === b)); });
+          panels.forEach(function (p) { p.hidden = p.getAttribute('data-year') !== y; });
+        });
+      });
+    })();
+  </script>
 </Base>

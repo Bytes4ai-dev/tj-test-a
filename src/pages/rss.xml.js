@@ -1,6 +1,6 @@
 // RSS 2.0 feed (TJD-645): every post in the `posts` collection, newest publish date first (same order as Insights).
 import { site } from '../config/site.mjs';
-import { getPosts, postUrl } from '../lib/posts.mjs';
+import { getPosts, postUrl, siteTags } from '../lib/posts.mjs';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -10,7 +10,7 @@ export async function GET() {
   const items = posts
     .map((p) => {
       const link = base + postUrl(p);
-      const cats = p.data.tags.map((t) => `<category>${esc(t)}</category>`).join('');
+      const cats = siteTags(p).map((t) => `<category>${esc(t)}</category>`).join('');
       return `<item><title>${esc(p.data.title)}</title><link>${esc(link)}</link><guid isPermaLink="true">${esc(link)}</guid><pubDate>${p.data.date.toUTCString()}</pubDate><description>${esc(p.data.description)}</description>${cats}</item>`;
     })
     .join('\n');

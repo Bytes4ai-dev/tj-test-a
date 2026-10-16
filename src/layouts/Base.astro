@@ -7,9 +7,11 @@ interface Props {
   description: string;
   ogImage: string; // path under public/, e.g. /og/home.png (original image, made by scripts/make-og.py)
   ogImageAlt: string;
+  ogType?: 'website' | 'article';
+  published?: string; // ISO date, article pages only
 }
 
-const { title, description, ogImage, ogImageAlt } = Astro.props;
+const { title, description, ogImage, ogImageAlt, ogType = 'website', published } = Astro.props;
 const base = site.url.replace(/\/$/, '');
 const pageUrl = base + Astro.url.pathname;
 const imageUrl = base + ogImage;
@@ -33,7 +35,9 @@ const nav = [
     <meta name="description" content={description} />
     <link rel="canonical" href={pageUrl} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta property="og:type" content="website" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} Insights`} href={base + '/rss.xml'} />
+    <meta property="og:type" content={ogType} />
+    {published && <meta property="article:published_time" content={published} />}
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />

@@ -148,3 +148,12 @@ blockquote { margin: 1.5rem 0; padding: 12px 18px; border-left: 6px solid var(--
 .post-list { list-style: none; padding: 0; display: grid; gap: 16px; }
 .post-item h2 { margin: 0.2rem 0; font-size: 1.3rem; }
 .post-item[hidden] { display: none; }
+
+/* Post template (TJD-643) */
+.post-meta { margin-bottom: 1.25rem; }
+.post-hero, .post-chart { margin: 0 0 1.5rem; }
+.post-hero svg { display: block; width: 100%; border: 3px solid var(--line); border-radius: 16px; background: var(--surface); }
+.post-chart img { border: 3px solid var(--line); border-radius: 16px; }
+.post-body h2 { margin-top: 2rem; }
+.post-cta { margin: 2rem 0 1rem; }
+.label a { color: inherit; display: inline-flex; align-items: center; min-height: 44px; }

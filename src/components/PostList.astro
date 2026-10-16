@@ -1,6 +1,7 @@
 ---
 // Post list used by Insights and the archive pages (TJD-645). Fixture posts carry a visible "Test fixture" label.
-import { postUrl, isoDate, yearOf } from '../lib/posts.mjs';
+// TJD-643: tags shown and filtered are the five Insights tags (siteTags); search also covers the post body.
+import { postUrl, isoDate, yearOf, siteTags, plainText, readingMinutes } from '../lib/posts.mjs';
 
 interface Props {
   posts: any[];
@@ -9,18 +10,21 @@ const { posts } = Astro.props;
 ---
 
 <ul class="post-list" data-post-list>
-  {posts.map((p) => (
-    <li
-      class="card post-item"
-      data-post
-      data-text={(p.data.title + ' ' + p.data.description + ' ' + p.data.tags.join(' ')).toLowerCase()}
-      data-tags={p.data.tags.join('|')}
-      data-year={yearOf(p)}
-    >
-      {p.data.fixture && <p class="label fixture-flag">Test fixture · not real content</p>}
-      <h2><a href={postUrl(p)}>{p.data.title}</a></h2>
-      <p class="mono"><time datetime={isoDate(p.data.date)}>{isoDate(p.data.date)}</time> · {p.data.tags.join(', ')}</p>
-      <p>{p.data.description}</p>
-    </li>
-  ))}
+  {posts.map((p) => {
+    const tags = siteTags(p);
+    return (
+      <li
+        class="card post-item"
+        data-post
+        data-text={[p.data.title, p.data.description, tags.join(' '), p.data.tags.join(' '), plainText(p.body)].join(' ').toLowerCase()}
+        data-tags={tags.join('|')}
+        data-year={yearOf(p)}
+      >
+        {p.data.fixture && <p class="label fixture-flag">Test fixture · not real content</p>}
+        <h2><a href={postUrl(p)}>{p.data.title}</a></h2>
+        <p class="mono"><time datetime={isoDate(p.data.date)}>{isoDate(p.data.date)}</time> · {tags.join(', ') || 'Insights'} · {readingMinutes(p)} min read</p>
+        <p>{p.data.description}</p>
+      </li>
+    );
+  })}
 </ul>

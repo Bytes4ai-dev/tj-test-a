@@ -5,6 +5,10 @@ import Readiness from '../components/Readiness.astro';
 import Contact from '../components/Contact.astro';
 import AboutBlock from '../components/AboutBlock.astro';
 import exp from '../data/experience.json';
+import { getPosts, siteTags, isoDate, readingMinutes } from '../lib/posts.mjs';
+
+// TJD-643: the three newest real posts (DEV fixtures never show on Home).
+const latest = (await getPosts()).filter((p) => !p.data.fixture).slice(0, 3);
 
 const services = [
   { name: 'Assess', body: 'Map the agents you run, what they can reach, and where the risk sits.' },
@@ -81,11 +85,12 @@ const services = [
     <div class="wrap">
       <h2>Latest insights</h2>
       <div class="grid three">
-        {[1, 2, 3].map((n) => (
-          <div class="card placeholder">
-            <p class="label">Placeholder</p>
-            <h3>Insight {n} coming soon</h3>
-            <p>Posts move here in the next phase.</p>
+        {latest.map((p) => (
+          <div class="card">
+            <p class="label">{siteTags(p)[0] || 'Insights'}</p>
+            <h3><a href={`/posts/${p.id}/`}>{p.data.title}</a></h3>
+            <p class="mono"><time datetime={isoDate(p.data.date)}>{isoDate(p.data.date)}</time> · {readingMinutes(p)} min read</p>
+            <p>{p.data.description}</p>
           </div>
         ))}
       </div>
