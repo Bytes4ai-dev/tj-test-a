@@ -1,0 +1,24 @@
+---
+// One page per post in the `posts` collection (TJD-645). Fixture posts show a banner so they are never read as real content.
+import Base from '../../layouts/Base.astro';
+import { render } from 'astro:content';
+import { site } from '../../config/site.mjs';
+import { getPosts, isoDate, readingMinutes } from '../../lib/posts.mjs';
+
+export async function getStaticPaths() {
+  return (await getPosts()).map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Base title={post.data.title} description={post.data.description} ogImage="/og/post.png" ogImageAlt="Bytes4AI post: a page with a chart">
+  <article class="wrap prose" style="padding-top:2rem">
+    {post.data.fixture && <p class="banner" data-fixture-banner>Test fixture for the DEV site only. Placeholder text, not real content.</p>}
+    <p class="label">{post.data.tags.join(' · ')}</p>
+    <h1>{post.data.title}</h1>
+    <p class="mono">{site.author.name} · <time datetime={isoDate(post.data.date)}>{isoDate(post.data.date)}</time> · {readingMinutes(post)} min read</p>
+    <Content />
+    <p><a class="btn" href="/#readiness">Take the readiness check</a></p>
+  </article>
+</Base>
