@@ -239,7 +239,7 @@ CHARTS = {
                                                     [("1 Aug 2024", ["Enters into force"], True), ("2 Feb 2025", ["Prohibitions,", "AI literacy"], False),
                                                      ("2 Aug 2025", ["General-purpose", "AI model rules"], False), ("2 Aug 2026", ["Most remaining", "rules"], False),
                                                      ("2 Aug 2027", ["Earlier GPAI", "models comply"], False)]),
-    "reasoning-models-change-evaluation": lambda: bars("AIME 2024: one model, four scores", "OpenAI, Learning to reason with LLMs (Sept 2024)",
+    "reasoning-models-change-evaluation": lambda: bars("AIME 2024: GPT-4o vs o1 at three compute settings", "OpenAI, Learning to reason with LLMs (Sept 2024)",
                                                        [("GPT-4o", 12, False), ("o1, 1 sample", 74, True), ("o1, consensus of 64", 83, True), ("o1, re-rank 1,000", 93, True)]),
     "mcp-arrives": mcp_diagram,
     "the-agent-hype-year": lambda: boxflow("Why agent projects get canceled", "Gartner press release, 25 June 2025",

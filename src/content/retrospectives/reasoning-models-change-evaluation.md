@@ -23,7 +23,7 @@ In September 2024 OpenAI introduced o1, a model trained to work through a proble
 
 On the AIME 2024 maths exam, OpenAI reported that [GPT-4o solved about 12% of problems, while o1 reached 74% with one sample, 83% with a consensus of 64 samples and 93% when re-ranking 1,000 samples](https://openai.com/index/learning-to-reason-with-llms/) [[1]](#source-1).
 
-Read that list again and the evaluation problem is plain: the same model has four different scores depending on how much compute you spend at answer time. In December, ARC Prize reported that OpenAI's o3 scored [75.7% on the ARC-AGI-1 semi-private set within its compute limit, and 87.5% in a configuration using 172 times more compute](https://arcprize.org/blog/oai-o3-pub-breakthrough), with a retail cost per task in the thousands of dollars for the high-compute run.
+Read that list again and the evaluation problem is plain: against a single GPT-4o baseline, o1 alone has three different scores depending on how much compute you spend at answer time. In December, ARC Prize reported that OpenAI's o3 scored [75.7% on the ARC-AGI-1 semi-private set within its compute limit, and 87.5% in a configuration using 172 times more compute](https://arcprize.org/blog/oai-o3-pub-breakthrough), with a retail cost per task in the thousands of dollars for the high-compute run.
 
 So a benchmark number without its method stopped meaning much. Teams evaluating reasoning models had to record the sampling setup, the token budget, the latency and the cost per task next to the accuracy, and to check whether a gain on public puzzles carried over to their own work [[1]](#source-1) [[3]](#source-3).
 
