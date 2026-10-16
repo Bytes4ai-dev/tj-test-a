@@ -4,6 +4,10 @@ server {
   server_name _;
   root /usr/share/nginx/html;
   index index.html;
+  # TJD-647: directory redirects (/platform -> /platform/) send a relative Location.
+  # Behind Cloud Run an absolute one leaked http:// and the container port (:8080).
+  absolute_redirect off;
+  port_in_redirect off;
 
   location = /healthz {
     default_type text/plain;
