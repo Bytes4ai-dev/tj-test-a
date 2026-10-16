@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-10-16T05:27:18Z",
+  "source": "TJGraph-Local/jira.sh search (read-only), project TJD",
+  "metrics": [
+    {
+      "id": "shipped",
+      "label": "Changes shipped by agents",
+      "value": 385,
+      "definition": "Agent-built tickets closed Done",
+      "jql": "project = TJD AND labels = devlead AND status = Done"
+    },
+    {
+      "id": "reviewed",
+      "label": "Passed an independent QA review",
+      "value": 385,
+      "definition": "Agent-built tickets a separate QA agent run passed (reached Ready for Merge)",
+      "jql": "project = TJD AND labels = devlead AND status WAS \"Ready for Merge\""
+    },
+    {
+      "id": "human",
+      "label": "Human approved",
+      "value": 12,
+      "definition": "Agent-built tickets carrying RP's rp-approved label",
+      "jql": "project = TJD AND labels = devlead AND labels = rp-approved"
+    }
+  ],
+  "last_change": {
+    "key": "TJD-394",
+    "updated": "2026-10-15T23:54:14.369-0500",
+    "jql": "project = TJD AND labels = devlead AND status = Done ORDER BY updated DESC"
+  }
+}

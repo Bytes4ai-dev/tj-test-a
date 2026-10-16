@@ -1,0 +1,24 @@
+---
+import { site } from '../config/site.mjs';
+const c = site.contact;
+---
+
+<section id="contact">
+  <div class="wrap">
+    <div class="card hero-card">
+      <h2>Book a review</h2>
+      {c.mode === 'mailto' && c.mailto ? (
+        <p><a class="btn" href={`mailto:${c.mailto}?subject=Agent%20governance%20review`}>Email to book a review</a></p>
+      ) : c.mode === 'form' && c.formAction ? (
+        <form action={c.formAction} method="post">
+          <p><label>Name<br /><input name="name" autocomplete="name" required style="min-height:44px;width:100%" /></label></p>
+          <p><label>Work email<br /><input name="email" type="email" autocomplete="email" required style="min-height:44px;width:100%" /></label></p>
+          <p><label>What would you like reviewed?<br /><textarea name="message" rows="4" style="width:100%"></textarea></label></p>
+          <button class="btn" type="submit">Send</button>
+        </form>
+      ) : (
+        <p>{c.placeholderText} <a href={site.author.linkedin} rel="noopener">{site.author.linkedinLabel}</a></p>
+      )}
+    </div>
+  </div>
+</section>

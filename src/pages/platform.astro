@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+import status from '../data/platform-status.json';
+import loop from '../data/proof-of-loop.json';
+
+const asOf = (iso: string) => iso.slice(0, 10);
+const filters = ['Working in DEV', 'In build', 'Planned'];
+---
+
+<Base
+  title="Platform"
+  description="TejasLand: mission control for autonomous engineering. An early product; see what works in DEV today."
+  ogImage="/og/platform.png"
+  ogImageAlt="TejasLand: a grid of capability tiles in three states"
+>
+  <section>
+    <div class="wrap">
+      <p class="label">TejasLand</p>
+      <h1>Mission control for autonomous engineering.</h1>
+      <p class="banner" role="note"><strong>Early product.</strong> TejasLand runs on DEV. We do not claim product-market fit, certified compliance or proven production scale.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Capabilities</h2>
+      <p class="mono">Status checked against Jira as of {asOf(status.generated_at)}.</p>
+      <div class="filter-chips" role="group" aria-label="Filter by status">
+        <button type="button" aria-pressed="true" data-filter="all">All</button>
+        {filters.map((f) => <button type="button" aria-pressed="false" data-filter={f}>{f}</button>)}
+      </div>
+      <div class="grid three" id="cap-grid">
+        {status.cards.map((c) => (
+          <div class="card" data-status={c.filter}>
+            <p><span class={`chip ${c.chip_class}`}>{c.chip}</span></p>
+            <h3>{c.title}</h3>
+            <p>{c.body}</p>
+            <p class="mono">Jira: {c.keys.join(', ')}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section style="background:var(--surface)">
+    <div class="wrap">
+      <h2>Proof of loop</h2>
+      <p class="mono">Counted from Jira, not typed. As of {asOf(loop.generated_at)}.</p>
+      <div class="grid three">
+        {loop.metrics.map((m) => (
+          <div class="card">
+            <p class="label">{m.label}</p>
+            <p style="font-family:var(--font-head);font-size:2.4rem;margin:0">{m.value}</p>
+            <p class="mono">{m.definition}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mono" style="margin-top:16px">Last change: {loop.last_change.key}, updated {asOf(loop.last_change.updated)}.</p>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var btns = document.querySelectorAll('[data-filter]');
+      var cards = document.querySelectorAll('#cap-grid [data-status]');
+      btns.forEach(function (b) {
+        b.addEventListener('click', function () {
+          var f = b.getAttribute('data-filter');
+          btns.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+          cards.forEach(function (c) { c.hidden = !(f === 'all' || c.getAttribute('data-status') === f); });
+        });
+      });
+    })();
+  </script>
+</Base>

@@ -1,0 +1,44 @@
+---
+// Governance-Containment gap meter (TJD-640). Numbers and source: Kiteworks 2026 Data Security Forecast.
+const SOURCE_URL = 'https://www.kiteworks.com/cybersecurity-risk-management/2026-data-security-forecast-ai-governance-predictions/';
+---
+
+<div class="card hero-card" id="gap-meter">
+  <p class="label">The governance-containment gap</p>
+  <div class="seg" role="group" aria-label="Gap meter view">
+    <button type="button" data-view="now" aria-pressed="true">Where teams are</button>
+    <button type="button" data-view="goal" aria-pressed="false">Where we help you get</button>
+  </div>
+  <div class="meter-bars">
+    <div class="bar-row">
+      <div class="bar-label"><span>Monitor their AI agents</span><span data-out="mon">58%</span></div>
+      <div class="bar-track" aria-hidden="true"><div class="bar-fill" style="width:58%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span>Can quickly stop one</span><span data-out="stop">40%</span></div>
+      <div class="bar-track" aria-hidden="true"><div class="bar-fill stop" data-bar="stop" style="width:40%"></div></div>
+    </div>
+  </div>
+  <p aria-live="polite" data-out="caption">58% of organizations continuously monitor their AI agents; only 40% can quickly stop one that misbehaves.</p>
+  <p class="mono">Source: <a href={SOURCE_URL} rel="noopener">Kiteworks, 2026 Data Security Forecast</a> (self-reported survey).</p>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('gap-meter');
+    if (!root) return;
+    var views = {
+      now: { width: '40%', stop: '40%', caption: '58% of organizations continuously monitor their AI agents; only 40% can quickly stop one that misbehaves.' },
+      goal: { width: '58%', stop: 'Goal: all you monitor', caption: 'The goal: every agent you can see, you can also stop, and you have tested it.' },
+    };
+    root.querySelectorAll('[data-view]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = views[b.getAttribute('data-view')];
+        root.querySelectorAll('[data-view]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        root.querySelector('[data-bar="stop"]').style.width = v.width;
+        root.querySelector('[data-out="stop"]').textContent = v.stop;
+        root.querySelector('[data-out="caption"]').textContent = v.caption;
+      });
+    });
+  })();
+</script>

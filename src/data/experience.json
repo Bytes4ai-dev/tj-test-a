@@ -1,0 +1,14 @@
+{
+  "_source": "TJD-640 'Facts allowed on the Experience strip' (RP's resume; client names withheld). Do not add claims beyond these.",
+  "facts": [
+    "125M+ patient records moved to cloud with zero customer impact",
+    "18-month 24/7 claims-platform move to AWS with zero disruption incl. 18 TB SQL Server re-platformed",
+    "~95% of requests resolved by a production AI system with no LLM on the hot path",
+    "30-40% lower analytics operating cost"
+  ],
+  "certs": [
+    "AWS Solutions Architect Professional",
+    "Data Analytics Specialty",
+    "Security Specialty"
+  ]
+}
