@@ -157,3 +157,10 @@ blockquote { margin: 1.5rem 0; padding: 12px 18px; border-left: 6px solid var(--
 .post-body h2 { margin-top: 2rem; }
 .post-cta { margin: 2rem 0 1rem; }
 .label a { color: inherit; display: inline-flex; align-items: center; min-height: 44px; }
+/* TJD-644 Timeline retrospectives */
+.timeline-list { padding-left: 0; list-style: none; }
+.retro-hero img, .retro-chart img { display: block; width: 100%; border: 3px solid var(--line); border-radius: 16px; }
+.retro-chart figcaption { margin-top: 0.5rem; overflow-wrap: anywhere; }
+.retro-chart figcaption a { display: inline-flex; align-items: center; min-height: 44px; }
+.written-note { margin: 0 0 1.5rem; }
+.post-sources li { overflow-wrap: anywhere; }

@@ -1,7 +1,10 @@
 ---
-// TJD-643 Timeline shell: title + year chips. The retrospective content arrives in Phase 3.
+// TJD-644 Timeline: the 12 retrospectives (TJD-640 outline) with year chips All/2024/2025/2026 (5/4/3).
+// Filtering is in-page only (no requests). The year is the year each retrospective looks back on, not a publish date.
 import Base from '../layouts/Base.astro';
-const years = ['2024', '2025', '2026'];
+import { getRetros, retroUrl, published, byline, readingMinutes, YEARS } from '../lib/retrospectives.mjs';
+
+const retros = await getRetros();
 ---
 
 <Base
@@ -13,26 +16,40 @@ const years = ['2024', '2025', '2026'];
   <section>
     <div class="wrap">
       <h1>How we got here 2024-2026</h1>
+      <p>Twelve retrospectives on the years that took AI from chat to agents. All were written in 2026, looking back; each one links its sources.</p>
       <div class="filter-chips" role="group" aria-label="Years">
-        {years.map((y, i) => <button type="button" data-year={y} aria-pressed={i === 0 ? 'true' : 'false'}>{y}</button>)}
+        <button type="button" data-year="" aria-pressed="true">All</button>
+        {YEARS.map((y) => <button type="button" data-year={y} aria-pressed="false">{y}</button>)}
       </div>
-      {years.map((y, i) => (
-        <div class="card placeholder timeline-year" data-year={y} hidden={i !== 0}>
-          <p class="label">{y} · Placeholder</p>
-          <p>The retrospective series arrives in a later phase. This page shows the layout only.</p>
-        </div>
-      ))}
+      <p class="mono" aria-live="polite" data-count>{retros.length} retrospectives</p>
+      <ol class="post-list timeline-list" data-retro-list>
+        {retros.map((r) => (
+          <li class="card post-item timeline-item" data-retro data-year={r.data.year} data-tag={r.data.tag}>
+            <p class="label">{r.data.year} · {r.data.tag}</p>
+            <h2><a href={retroUrl(r)}>{r.data.title}</a></h2>
+            <p class="mono">{byline} · Published <time datetime={published}>{published}</time> · Written in 2026 · {readingMinutes(r)} min read</p>
+            <p>{r.data.description}</p>
+          </li>
+        ))}
+      </ol>
     </div>
   </section>
   <script is:inline>
     (function () {
       var chips = Array.prototype.slice.call(document.querySelectorAll('.filter-chips button'));
-      var panels = Array.prototype.slice.call(document.querySelectorAll('.timeline-year'));
+      var items = Array.prototype.slice.call(document.querySelectorAll('[data-retro]'));
+      var out = document.querySelector('[data-count]');
       chips.forEach(function (b) {
         b.addEventListener('click', function () {
           var y = b.getAttribute('data-year');
+          var n = 0;
           chips.forEach(function (c) { c.setAttribute('aria-pressed', String(c === b)); });
-          panels.forEach(function (p) { p.hidden = p.getAttribute('data-year') !== y; });
+          items.forEach(function (it) {
+            var show = !y || it.getAttribute('data-year') === y;
+            it.hidden = !show;
+            if (show) n++;
+          });
+          out.textContent = n + (n === 1 ? ' retrospective' : ' retrospectives');
         });
       });
     })();

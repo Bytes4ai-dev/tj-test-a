@@ -9,6 +9,8 @@ import { z } from 'astro/zod';
 
 const production = process.env.TJ_SITE_ENV === 'production';
 const patterns = ['posts/**/*.md'];
+// TJD-644: the Timeline retrospectives are their own collection behind the SAME guard (one fixture switch).
+const retroPatterns = ['retrospectives/**/*.md'];
 
 // FIXTURES-HOOK-BEGIN (DEV-only test archive; removed by scripts/remove-fixtures.sh)
 if (process.env.TJ_SITE_FIXTURES === '1' && !production) patterns.push('fixtures/**/*.md');
@@ -16,11 +18,11 @@ if (process.env.TJ_SITE_FIXTURES === '1' && !production) patterns.push('fixtures
 
 export const isFixture = (data) => data.fixture === true || String(data.title || '').startsWith('[TEST]');
 
-function guardedGlob() {
+function guardedGlob(pattern = patterns) {
   const inner = glob({
-    pattern: patterns,
+    pattern,
     base: './src/content',
-    generateId: ({ entry }) => entry.replace(/^(posts|fixtures)\//, '').replace(/\.md$/, ''),
+    generateId: ({ entry }) => entry.replace(/^(posts|fixtures|retrospectives)\//, '').replace(/\.md$/, ''),
   });
   return {
     name: 'posts-with-fixture-guard',
@@ -55,4 +57,24 @@ const posts = defineCollection({
     .transform((d) => ({ ...d, description: d.description || d.excerpt })),
 });
 
-export const collections = { posts };
+// TJD-644: the 12 Timeline retrospectives (TJD-640 outline). Written in 2026; the publish date is one value in
+// src/data/retrospectives.json (the merge date), never a 2024/2025 date. Every source is listed for the Sources block.
+const TAG_NAMES = ['Governance', 'Agents', 'Observability', 'Engineering', 'Data and people'];
+const SERVICES = ['Assess', 'Migrate', 'Modernize', 'Build', 'Govern'];
+const retrospectives = defineCollection({
+  loader: guardedGlob(retroPatterns),
+  schema: z.object({
+    title: z.string(),
+    order: z.number().int(),
+    year: z.enum(['2024', '2025', '2026']),
+    tag: z.enum(TAG_NAMES),
+    description: z.string(),
+    service: z.enum(SERVICES),
+    heroAlt: z.string(),
+    chart: z.object({ alt: z.string(), caption: z.string(), sourceUrl: z.string().url() }),
+    sources: z.array(z.object({ title: z.string(), url: z.string().url() })).min(1),
+    fixture: z.boolean().default(false),
+  }),
+});
+
+export const collections = { posts, retrospectives };
