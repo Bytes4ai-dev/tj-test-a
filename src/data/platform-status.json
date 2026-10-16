@@ -1,0 +1,107 @@
+{
+  "generated_at": "2026-10-16T05:27:03Z",
+  "source": "TJGraph-Local/jira.sh search (read-only)",
+  "jql": "project = TJD AND key in (TJD-16,TJD-191,TJD-38,TJD-434,TJD-545,TJD-85,TJD-97,TJD-99) ORDER BY key ASC",
+  "cards": [
+    {
+      "id": "merge-gate",
+      "title": "Merge gate",
+      "body": "Merges exactly the commit an independent QA run approved, with the gate script pinned by hash.",
+      "keys": [
+        "TJD-38"
+      ],
+      "jira_status": {
+        "TJD-38": "Done"
+      },
+      "filter": "Working in DEV",
+      "chip": "Working in DEV",
+      "chip_class": "working"
+    },
+    {
+      "id": "budgets",
+      "title": "Budgets and policy",
+      "body": "Hierarchical budgets and evidence-based policy refinement for agent work.",
+      "keys": [
+        "TJD-16"
+      ],
+      "jira_status": {
+        "TJD-16": "Done"
+      },
+      "filter": "Working in DEV",
+      "chip": "Working in DEV",
+      "chip_class": "working"
+    },
+    {
+      "id": "customer-plane",
+      "title": "Customer plane baseline",
+      "body": "Exact IAM per principal, KMS keyring and signed build provenance for the customer's app repo.",
+      "keys": [
+        "TJD-191"
+      ],
+      "jira_status": {
+        "TJD-191": "Done"
+      },
+      "filter": "Working in DEV",
+      "chip": "Working in DEV",
+      "chip_class": "working"
+    },
+    {
+      "id": "grounded-chat",
+      "title": "Grounded read-only chat",
+      "body": "Read-only chat over project data through a client-funded embeddings credential.",
+      "keys": [
+        "TJD-85"
+      ],
+      "jira_status": {
+        "TJD-85": "Done"
+      },
+      "filter": "Working in DEV",
+      "chip": "Working in DEV",
+      "chip_class": "working"
+    },
+    {
+      "id": "builder-pr",
+      "title": "Builder PRs on your repo",
+      "body": "The builder opens its pull request on the project's own bound repository.",
+      "keys": [
+        "TJD-545",
+        "TJD-434"
+      ],
+      "jira_status": {
+        "TJD-545": "To Do",
+        "TJD-434": "To Do"
+      },
+      "filter": "Planned",
+      "chip": "Planned",
+      "chip_class": "planned"
+    },
+    {
+      "id": "signed-policy",
+      "title": "Signed policy snapshots",
+      "body": "Policy snapshots signed by a DEV signing key and accepted live.",
+      "keys": [
+        "TJD-97"
+      ],
+      "jira_status": {
+        "TJD-97": "To Do"
+      },
+      "filter": "Planned",
+      "chip": "Planned",
+      "chip_class": "planned"
+    },
+    {
+      "id": "freeze-stop",
+      "title": "Freeze and stop",
+      "body": "A hot brake that freezes or stops agent runs. Not claimed as tested.",
+      "keys": [
+        "TJD-99"
+      ],
+      "jira_status": {
+        "TJD-99": "Ready for RP"
+      },
+      "filter": "In build",
+      "chip": "pending supervised drill (TJD-99)",
+      "chip_class": "pending"
+    }
+  ]
+}

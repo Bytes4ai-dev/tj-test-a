@@ -1,0 +1,30 @@
+---
+// Post template layout with placeholder text only (TJD-641). Real posts arrive in Phase 2.
+import Base from '../../layouts/Base.astro';
+import { site } from '../../config/site.mjs';
+---
+
+<Base
+  title="Post layout"
+  description="Layout preview for Bytes4AI posts. Placeholder text only."
+  ogImage="/og/post.png"
+  ogImageAlt="Bytes4AI post layout: a page with a chart"
+>
+  <article class="wrap prose" style="padding-top:2rem">
+    <p class="label">Placeholder · Tag</p>
+    <h1>Post title placeholder</h1>
+    <p class="mono">{site.author.name} · publish date · reading time</p>
+    <svg viewBox="0 0 600 200" role="img" aria-label="Placeholder hero illustration" style="border:3px solid var(--line);border-radius:16px;background:var(--surface)">
+      <rect x="40" y="120" width="80" height="50" fill="var(--accent)"></rect>
+      <rect x="160" y="80" width="80" height="90" fill="var(--accent)"></rect>
+      <rect x="280" y="50" width="80" height="120" fill="var(--amber)"></rect>
+      <circle cx="480" cy="100" r="50" fill="none" stroke="var(--line)" stroke-width="6"></circle>
+    </svg>
+    <p>Body text placeholder. The real post body goes here.</p>
+    <blockquote>Pull quote placeholder.</blockquote>
+    <div class="callout"><p class="label">What to do this week</p><p>Callout placeholder.</p></div>
+    <h2>Sources</h2>
+    <ul><li>Source list placeholder</li></ul>
+    <p><a class="btn" href="/#readiness">Take the readiness check</a></p>
+  </article>
+</Base>

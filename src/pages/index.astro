@@ -1,0 +1,101 @@
+---
+import Base from '../layouts/Base.astro';
+import GapMeter from '../components/GapMeter.astro';
+import Readiness from '../components/Readiness.astro';
+import Contact from '../components/Contact.astro';
+import AboutBlock from '../components/AboutBlock.astro';
+import exp from '../data/experience.json';
+
+const services = [
+  { name: 'Assess', body: 'Map the agents you run, what they can reach, and where the risk sits.' },
+  { name: 'Migrate', sub: 'database and cloud', body: 'Move databases and platforms to the cloud without disrupting the business.' },
+  { name: 'Modernize', sub: 'data platforms', body: 'Rebuild data platforms so analytics and AI share one trusted base.' },
+  { name: 'Build', sub: 'AI and agents, evals first', body: 'Write the evaluations first, then build the AI system that passes them.' },
+  { name: 'Govern', body: 'Put tested stop controls, audit trails and scoped credentials around your agents.' },
+];
+---
+
+<Base
+  title="Bytes4AI"
+  description="AI agents you can see, stop and trust. Agent governance, data platforms and cloud migration by Bytes4AI."
+  ogImage="/og/home.png"
+  ogImageAlt="Bytes4AI: two bars showing the gap between monitoring and stopping AI agents"
+>
+  <section>
+    <div class="wrap grid two" style="align-items:center">
+      <div>
+        <p class="label">Bytes4AI</p>
+        <h1>AI agents you can see, stop and trust.</h1>
+        <p>Most teams can watch their agents. Far fewer can stop one. We help close that gap.</p>
+        <p style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="#readiness">Take the readiness check</a><a class="btn ghost" href="#contact">Book a review</a></p>
+      </div>
+      <GapMeter />
+    </div>
+  </section>
+
+  <section id="tejasland" style="background:var(--surface)">
+    <div class="wrap">
+      <div class="card">
+        <p class="label">Our product · early</p>
+        <h2>TejasLand: mission control for autonomous engineering.</h2>
+        <p>Agents build, an independent agent checks, and every change leaves evidence. It is an early product running on DEV.</p>
+        <p><a class="btn" href="/platform/">See what works today</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="services">
+    <div class="wrap">
+      <h2>Services</h2>
+      <div class="grid five">
+        {services.map((s) => (
+          <div class="card">
+            <h3>{s.name}</h3>
+            {s.sub && <p class="label">{s.sub}</p>}
+            <p>{s.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="strip" id="experience">
+    <div class="wrap">
+      <h2>Experience</h2>
+      <ul>
+        {exp.facts.map((f) => <li>{f}</li>)}
+        <li>{exp.certs.join(' · ')}</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="readiness">
+    <div class="wrap" style="max-width:760px">
+      <h2>Agent Readiness Check</h2>
+      <p>Four questions. Runs in your browser; nothing is sent or stored.</p>
+      <Readiness />
+    </div>
+  </section>
+
+  <section id="insights" style="background:var(--surface)">
+    <div class="wrap">
+      <h2>Latest insights</h2>
+      <div class="grid three">
+        {[1, 2, 3].map((n) => (
+          <div class="card placeholder">
+            <p class="label">Placeholder</p>
+            <h3>Insight {n} coming soon</h3>
+            <p>Posts move here in the next phase.</p>
+          </div>
+        ))}
+      </div>
+      <p style="margin-top:16px"><a href="/insights/">All insights</a></p>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap"><AboutBlock /></div>
+  </section>
+
+  <Contact />
+</Base>

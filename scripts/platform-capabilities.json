@@ -1,0 +1,48 @@
+{
+  "_about": "Input for scripts/platform-status.sh. Each card names its Jira keys; the chip is derived from their live Jira status (all Done -> Working in DEV; all To Do -> Planned; otherwise In build). 'override' replaces the chip text where TJD-640 requires it.",
+  "cards": [
+    {
+      "id": "merge-gate",
+      "title": "Merge gate",
+      "body": "Merges exactly the commit an independent QA run approved, with the gate script pinned by hash.",
+      "keys": ["TJD-38"]
+    },
+    {
+      "id": "budgets",
+      "title": "Budgets and policy",
+      "body": "Hierarchical budgets and evidence-based policy refinement for agent work.",
+      "keys": ["TJD-16"]
+    },
+    {
+      "id": "customer-plane",
+      "title": "Customer plane baseline",
+      "body": "Exact IAM per principal, KMS keyring and signed build provenance for the customer's app repo.",
+      "keys": ["TJD-191"]
+    },
+    {
+      "id": "grounded-chat",
+      "title": "Grounded read-only chat",
+      "body": "Read-only chat over project data through a client-funded embeddings credential.",
+      "keys": ["TJD-85"]
+    },
+    {
+      "id": "builder-pr",
+      "title": "Builder PRs on your repo",
+      "body": "The builder opens its pull request on the project's own bound repository.",
+      "keys": ["TJD-545", "TJD-434"]
+    },
+    {
+      "id": "signed-policy",
+      "title": "Signed policy snapshots",
+      "body": "Policy snapshots signed by a DEV signing key and accepted live.",
+      "keys": ["TJD-97"]
+    },
+    {
+      "id": "freeze-stop",
+      "title": "Freeze and stop",
+      "body": "A hot brake that freezes or stops agent runs. Not claimed as tested.",
+      "keys": ["TJD-99"],
+      "override": { "chip": "pending supervised drill (TJD-99)", "class": "pending" }
+    }
+  ]
+}

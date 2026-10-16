@@ -1,0 +1,20 @@
+---
+import { site } from '../config/site.mjs';
+import exp from '../data/experience.json';
+const a = site.author;
+interface Props { heading?: 'h1' | 'h2' }
+const { heading = 'h2' } = Astro.props;
+const H = heading;
+---
+
+<div class="about-row">
+  <div class="avatar" aria-hidden="true">{a.initials}</div>
+  <div class="prose">
+    <H>About</H>
+    <p><strong>{a.name}</strong>, {a.title}, {a.location}.</p>
+    <p>Recent work, from Ravi's resume (client names withheld):</p>
+    <ul>{exp.facts.map((f) => <li>{f}</li>)}</ul>
+    <p>Certifications: {exp.certs.join(', ')}.</p>
+    <p>LinkedIn: <a href={a.linkedin} rel="noopener">{a.linkedinLabel}</a></p>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import AboutBlock from '../components/AboutBlock.astro';
+import Contact from '../components/Contact.astro';
+---
+
+<Base
+  title="About"
+  description="Ravi Singh, Senior AI Architect and Principal Data Architect, Keller TX."
+  ogImage="/og/about.png"
+  ogImageAlt="Bytes4AI About: a circle mark"
+>
+  <section>
+    <div class="wrap"><AboutBlock heading="h1" /></div>
+  </section>
+  <Contact />
+</Base>

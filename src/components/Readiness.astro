@@ -1,0 +1,56 @@
+---
+// 4-question Agent Readiness Check. Client-side only: no network request, no cookie, no localStorage.
+const questions = [
+  'Can you list every AI agent running in your environment and what it can access?',
+  'Does every agent action leave an audit trail your team can read?',
+  'Can you stop a misbehaving agent within minutes, and have you tested it?',
+  'Do agents run with their own scoped credentials instead of a person’s?',
+];
+const options = [
+  { value: '2', label: 'Yes' },
+  { value: '1', label: 'Partly' },
+  { value: '0', label: 'No' },
+];
+---
+
+<form id="readiness-form" novalidate>
+  {questions.map((q, i) => (
+    <fieldset>
+      <legend>{i + 1}. {q}</legend>
+      {options.map((o) => (
+        <label class="opt"><input type="radio" name={`q${i}`} value={o.value} required /> {o.label}</label>
+      ))}
+    </fieldset>
+  ))}
+  <button class="btn" type="submit">See my result</button>
+  <div class="card" style="margin-top:16px" aria-live="polite" id="readiness-result" tabindex="-1">
+    <p class="mono">Answer all four questions to see a result. Nothing is sent or stored.</p>
+  </div>
+</form>
+
+<script is:inline>
+  (function () {
+    var form = document.getElementById('readiness-form');
+    var out = document.getElementById('readiness-result');
+    if (!form || !out) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var total = 0;
+      for (var i = 0; i < 4; i++) {
+        var picked = form.querySelector('input[name="q' + i + '"]:checked');
+        if (!picked) {
+          out.innerHTML = '<p>Please answer question ' + (i + 1) + ' first.</p>';
+          out.focus();
+          return;
+        }
+        total += Number(picked.value);
+      }
+      var msg;
+      if (total >= 7) msg = ['Ready to scale', 'You can see, stop and trace your agents. Next step: Build, with evals first.'];
+      else if (total >= 4) msg = ['Partly ready', 'Some controls exist but have gaps. Next step: Govern, so stopping is tested, not assumed.'];
+      else msg = ['Start with visibility', 'You may not know what your agents can reach. Next step: Assess, to map agents, access and risk.'];
+      out.innerHTML = '<p class="label">Score ' + total + ' / 8</p><h3>' + msg[0] + '</h3><p>' + msg[1] + '</p><p><a href="#contact">Book a review</a></p>';
+      out.focus();
+    });
+  })();
+</script>
