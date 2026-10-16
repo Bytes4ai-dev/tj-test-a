@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TJD-641 static checks on a fresh build. No network, no Jira. Exit 0 = all pass.
+# TJD-641 + TJD-643 static checks on a fresh build. No network, no Jira. Exit 0 = all pass.
 #   tokens file holds only the six colors + three fonts; every page has OG/twitter tags and its og:image exists;
 #   Experience strip == data/experience.json == TJD-640 facts; Platform banner + JSON-sourced numbers;
 #   checklist not in dist; deny-list red-before (planted phone number) then clean.
@@ -18,18 +18,67 @@ fonts="$(grep -oE "'(Bricolage Grotesque|IBM Plex Sans|IBM Plex Mono)'" src/styl
 [ "$fonts" = 3 ] && ok "tokens fonts" || no "tokens fonts"
 grep -rnoiE '#[0-9a-f]{3,8}\b' src --include=*.astro --include=*.css | grep -v 'src/styles/tokens.css' | grep -q . && no "hex color outside tokens" || ok "no hex outside tokens"
 
-# 2. pages + share previews
-for p in index about/index platform/index insights/index timeline/index posts/sample/index; do
+# 2. pages + share previews (TJD-641 pages + TJD-643 post pages); og:url/og:image absolute on the site URL
+SITE="$(node -e "import('./src/config/site.mjs').then(m => console.log(m.site.url.replace(/\/\$/, '')))")"
+pages="index about/index platform/index insights/index timeline/index"
+for f in src/content/posts/*.md; do pages="$pages posts/$(basename "$f" .md)/index"; done
+for p in $pages; do
   f="dist/$p.html"
   [ -f "$f" ] || { no "page $p missing"; continue; }
   miss=""
   for t in 'property="og:title"' 'property="og:description"' 'property="og:image"' 'property="og:url"' 'name="twitter:card"'; do
     grep -q "$t" "$f" || miss="$miss $t"
   done
-  img="$(grep -o 'property="og:image" content="[^"]*"' "$f" | sed 's/.*content="[a-z]*:\/\/[^/]*//; s/"$//')"
+  url="$(grep -o 'property="og:url" content="[^"]*"' "$f" | sed 's/.*content="//; s/"$//')"
+  imgurl="$(grep -o 'property="og:image" content="[^"]*"' "$f" | sed 's/.*content="//; s/"$//')"
+  case "$url" in "$SITE"/*) ;; *) miss="$miss og:url-not-on-site($url)";; esac
+  case "$imgurl" in "$SITE"/*) ;; *) miss="$miss og:image-not-on-site($imgurl)";; esac
+  img="${imgurl#"$SITE"}"
   [ -f "dist$img" ] || miss="$miss og:image-file($img)"
+  case "$p" in posts/*) grep -q 'property="og:type" content="article"' "$f" || miss="$miss og:type-article"
+    [ "$img" = "/og/${p%/index}.png" ] || miss="$miss own-og-image";; esac
   [ -z "$miss" ] && ok "page $p meta" || no "page $p:$miss"
 done
+grep -rlq 'localhost' dist --include=*.html --include=*.xml && no "localhost URL in dist" || ok "no localhost URL in dist"
+
+# 2b. TJD-643 post template, Insights, Timeline shell, RSS
+n_posts="$(ls src/content/posts/*.md | wc -l | tr -d ' ')"
+[ "$n_posts" = 15 ] && ok "15 posts migrated" || no "posts: $n_posts"
+python3 - <<'PY2' && ok "post template parts" || no "post template parts"
+import glob, re
+for f in glob.glob("dist/posts/*/index.html"):
+    s = open(f).read()
+    for need in ('<h1>', 'class="label"', 'Ravi Singh', '<time datetime="', ' min read', 'class="post-hero"', 'class="post-body"', 'href="/#readiness"'):
+        assert need in s, (f, need)
+PY2
+python3 - <<'PY2' && ok "Insights: 15 cards, 5 tag chips, count, body search text" || no "Insights page"
+import re
+s = open("dist/insights/index.html").read()
+items = re.findall(r'<li class="card post-item".*?</li>', s, re.S)
+assert len(items) == 15, len(items)
+chips = re.findall(r'data-tag="([^"]*)"', s)
+assert chips == ["", "Governance", "Agents", "Observability", "Engineering", "Data and people"], chips
+assert all(re.search(r'data-tags="[^"]+"', i) for i in items), "post without an Insights tag"
+assert 'aria-live="polite" data-count' in s and ">15 posts<" in s and 'type="search"' in s
+assert "honest caveat" in s, "body text not in search index"
+assert not re.search(r"fetch\(|XMLHttpRequest|sendBeacon|WebSocket|import\(", s)
+PY2
+python3 - <<'PY2' && ok "Timeline shell: title + 2024/2025/2026 chips" || no "Timeline shell"
+s = open("dist/timeline/index.html").read()
+assert "How we got here 2024-2026" in s
+assert all('data-year="%s" aria-pressed' % y in s for y in ("2024", "2025", "2026"))
+PY2
+python3 - <<'PY2' && ok "internal links resolve" || no "internal links resolve"
+import glob, os, re
+bad = []
+for f in glob.glob("dist/**/*.html", recursive=True):
+    for h in re.findall(r'href="(/[^"#?]*)', open(f).read()):
+        t = "dist" + h
+        if not (os.path.isfile(t) or os.path.isfile(os.path.join(t, "index.html")) or t.endswith("/") and os.path.isfile(t + "index.html")):
+            bad.append((f, h))
+assert not bad, bad[:5]
+PY2
+python3 tests/rss-check.py dist "$SITE" >/dev/null && ok "rss.xml valid, 15 items newest first" || no "rss.xml"
 
 # 3. experience strip text
 want="$(python3 -c 'import json; d=json.load(open("src/data/experience.json")); print("\n".join(d["facts"]+[" · ".join(d["certs"])]))')"

@@ -1,24 +1,83 @@
 ---
 // One page per post in the `posts` collection (TJD-645). Fixture posts show a banner so they are never read as real content.
+// TJD-643 post template: title, tag, author, publish date, reading time, hero illustration slot, chart/diagram slot,
+// pull quote, "What to do this week" callout, Sources list, CTA to the readiness check. The body is the donor post
+// rendered as-is. Optional slots come from src/data/post-extras.json and are left out when empty (nothing is
+// written in RP's name).
 import Base from '../../layouts/Base.astro';
 import { render } from 'astro:content';
 import { site } from '../../config/site.mjs';
-import { getPosts, isoDate, readingMinutes } from '../../lib/posts.mjs';
+import { getPosts, isoDate, readingMinutes, siteTags, plainText } from '../../lib/posts.mjs';
+import extras from '../../data/post-extras.json';
 
 export async function getStaticPaths() {
   return (await getPosts()).map((post) => ({ params: { id: post.id }, props: { post } }));
 }
 const { post } = Astro.props;
 const { Content } = await render(post);
+const tags = siteTags(post);
+const x = extras.posts[post.id] || {};
+if (x.pullQuote && !plainText(post.body).includes(x.pullQuote)) {
+  throw new Error(`post-extras: pullQuote for ${post.id} is not an exact sentence from the post body`);
+}
+const sources = Array.isArray(x.sources) ? x.sources : [];
+// Share image: each real post has its own original image (scripts/make-og.py); fixtures use the generic one.
+const ogImage = post.data.fixture ? '/og/post.png' : `/og/posts/${post.id}.png`;
+
+// Hero illustration slot: an original geometric mark drawn from the post id (no stock or AI imagery).
+let h = 0;
+for (const c of post.id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+const bars = [0, 1, 2, 3, 4].map((i) => 40 + ((h >>> (i * 5)) % 110));
+const hot = h % 5;
 ---
 
-<Base title={post.data.title} description={post.data.description} ogImage="/og/post.png" ogImageAlt="Bytes4AI post: a page with a chart">
-  <article class="wrap prose" style="padding-top:2rem">
+<Base
+  title={post.data.title}
+  description={post.data.description}
+  ogImage={ogImage}
+  ogImageAlt={`Bytes4AI Insights: ${post.data.title}`}
+  ogType="article"
+  published={isoDate(post.data.date)}
+>
+  <article class="wrap prose post" style="padding-top:2rem">
     {post.data.fixture && <p class="banner" data-fixture-banner>Test fixture for the DEV site only. Placeholder text, not real content.</p>}
-    <p class="label">{post.data.tags.join(' · ')}</p>
+    <p class="label">
+      {tags.length ? tags.map((t, i) => <>{i > 0 && ' · '}<a href="/insights/">{t}</a></>) : 'Insights'}
+    </p>
     <h1>{post.data.title}</h1>
-    <p class="mono">{site.author.name} · <time datetime={isoDate(post.data.date)}>{isoDate(post.data.date)}</time> · {readingMinutes(post)} min read</p>
-    <Content />
-    <p><a class="btn" href="/#readiness">Take the readiness check</a></p>
+    <p class="mono post-meta">{site.author.name} · <time datetime={isoDate(post.data.date)}>{isoDate(post.data.date)}</time> · {readingMinutes(post)} min read</p>
+    <figure class="post-hero" aria-hidden="true">
+      <svg viewBox="0 0 600 200" focusable="false">
+        {bars.map((v, i) => <rect x={40 + i * 110} y={180 - v} width="70" height={v} fill={i === hot ? 'var(--amber)' : 'var(--accent)'} />)}
+        <rect x="20" y="180" width="560" height="6" fill="var(--line)" />
+      </svg>
+    </figure>
+    {x.chart && x.chart.src && (
+      <figure class="post-chart">
+        <img src={x.chart.src} alt={x.chart.alt || ''} loading="lazy" />
+        {x.chart.alt && <figcaption class="mono">{x.chart.alt}</figcaption>}
+      </figure>
+    )}
+    {x.pullQuote && <blockquote class="pull-quote">{x.pullQuote}</blockquote>}
+    <div class="post-body">
+      <Content />
+    </div>
+    {x.thisWeek && (
+      <aside class="callout" aria-label="What to do this week">
+        <p class="label">What to do this week</p>
+        <p>{x.thisWeek}</p>
+      </aside>
+    )}
+    {sources.length > 0 && (
+      <section class="post-sources" aria-label="Sources">
+        <h2>Sources</h2>
+        <ul>{sources.map((s) => <li><a href={s.url} rel="noopener">{s.title}</a></li>)}</ul>
+      </section>
+    )}
+    <div class="card post-cta">
+      <p class="label">Agent Readiness Check</p>
+      <p><a class="btn" href="/#readiness">Take the readiness check</a></p>
+    </div>
+    <p><a href="/insights/">All Insights</a></p>
   </article>
 </Base>

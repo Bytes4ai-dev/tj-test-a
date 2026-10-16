@@ -1,0 +1,4 @@
+{
+  "_about": "TJD-643 optional post-template slots, keyed by post id (file name without .md). Every slot is empty until RP supplies it (RP's words only; nothing is written for RP). pullQuote must be an exact sentence from that post's body (the build fails otherwise). thisWeek = the 'What to do this week' callout text. sources = [{\"title\", \"url\"}]. chart = {\"src\": \"/posts/<id>/<file>.svg\", \"alt\"} for an original chart or diagram under public/. An empty slot is not rendered. See PRELAUNCH-CHECKLIST.md.",
+  "posts": {}
+}

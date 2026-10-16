@@ -86,6 +86,22 @@ def post(px):  # page with a chart
         rect(px, 420 + i * 130, 480 - h, 500 + i * 130, 480, AMBER if i == 2 else TEAL)
 
 
+def post_card(px, slug):  # TJD-643: one original image per post, bars drawn from the post id
+    h = 0
+    for ch in slug:
+        h = (h * 31 + ord(ch)) & 0xFFFFFFFF
+    card(px, 150, 110, 1050, 520, PAPER)
+    hot = h % 5
+    for i in range(5):
+        v = 80 + ((h >> (i * 5)) % 220)
+        rect(px, 230 + i * 160, 460 - v, 330 + i * 160, 460, AMBER if i == hot else TEAL)
+    rect(px, 200, 460, 1000, 472, INK)
+
+
+def posts_dir():
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src", "content", "posts")
+
+
 def main(out):
     os.makedirs(out, exist_ok=True)
     for name, fn, bg in [("home", home, PANEL), ("platform", platform, PAPER), ("insights", insights, PAPER),
@@ -94,6 +110,14 @@ def main(out):
         fn(px)
         save(px, os.path.join(out, name + ".png"))
         print("og:", name)
+    os.makedirs(os.path.join(out, "posts"), exist_ok=True)
+    for f in sorted(os.listdir(posts_dir())):
+        if f.endswith(".md"):
+            slug = f[:-3]
+            px = frame(PANEL)
+            post_card(px, slug)
+            save(px, os.path.join(out, "posts", slug + ".png"))
+            print("og: posts/" + slug)
 
 
 if __name__ == "__main__":

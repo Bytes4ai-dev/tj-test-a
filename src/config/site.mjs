@@ -2,9 +2,9 @@
 // No phone number and no personal email may ever be added here (scripts/prelaunch-check.sh enforces it on dist/).
 export const site = {
   name: 'Bytes4AI',
-  // Absolute base URL used for og:url / og:image. PLACEHOLDER until the DEV/production domain is decided
-  // (see PRELAUNCH-CHECKLIST.md). Override at build time with SITE_URL.
-  url: process.env.SITE_URL || 'http://localhost:8080',
+  // Absolute base URL used for og:url / og:image / RSS links. Default = the DEV rvdemo-app URL (TJD-643 AC4,
+  // PL ruling 56951); the production domain is set at go-live (see PRELAUNCH-CHECKLIST.md). Override with SITE_URL.
+  url: process.env.SITE_URL || 'https://rvdemo-app-crnwvkk4ua-uc.a.run.app',
   author: {
     name: 'Ravi Singh',
     initials: 'RS',

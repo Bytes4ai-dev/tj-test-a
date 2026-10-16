@@ -3,10 +3,11 @@
 // filters and a live result count. Filtering runs in the browser on the rendered list: no requests after load.
 import Base from '../layouts/Base.astro';
 import PostList from '../components/PostList.astro';
-import { getPosts, TAGS, PAGE_SIZE, yearOf } from '../lib/posts.mjs';
+import { getPosts, TAGS, PAGE_SIZE, yearOf, siteTags } from '../lib/posts.mjs';
 
 const posts = await getPosts();
-const tags = [...new Set([...TAGS, ...posts.flatMap((p) => p.data.tags)])];
+// TJD-643: chips = the five Insights tags (donor posts' own tags map onto them, src/lib/posts.mjs).
+const tags = [...new Set([...TAGS, ...posts.flatMap(siteTags)])];
 const years = [...new Set(posts.map(yearOf))].sort((a, b) => b - a);
 const pages = Math.ceil(posts.length / PAGE_SIZE);
 ---
@@ -25,7 +26,6 @@ const pages = Math.ceil(posts.length / PAGE_SIZE);
         <div class="card placeholder">
           <p class="label">Placeholder</p>
           <p>No posts yet.</p>
-          <p><a href="/posts/sample/">See the post layout</a></p>
         </div>
       ) : (
         <div data-insights>
