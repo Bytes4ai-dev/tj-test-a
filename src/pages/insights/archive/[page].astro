@@ -1,0 +1,30 @@
+---
+// Paginated archive (TJD-645): /insights/archive/1/, /2/, ... newest first, PAGE_SIZE posts per page.
+import Base from '../../../layouts/Base.astro';
+import PostList from '../../../components/PostList.astro';
+import { getPosts, PAGE_SIZE } from '../../../lib/posts.mjs';
+
+export async function getStaticPaths({ paginate }) {
+  return paginate(await getPosts(), { pageSize: PAGE_SIZE });
+}
+const { page } = Astro.props;
+---
+
+<Base
+  title={`Insights archive, page ${page.currentPage}`}
+  description="All Bytes4AI Insights posts, newest first."
+  ogImage="/og/insights.png"
+  ogImageAlt="Bytes4AI Insights: stacked cards"
+>
+  <section>
+    <div class="wrap">
+      <h1>Insights archive</h1>
+      <p class="mono" data-page-info>Page {page.currentPage} of {page.lastPage} · {page.total} posts</p>
+      <PostList posts={page.data} />
+      <nav aria-label="Archive pages" class="filter-chips">
+        {page.url.prev && <a class="btn" href={page.url.prev} rel="prev">Newer</a>}
+        {page.url.next && <a class="btn" href={page.url.next} rel="next">Older</a>}
+      </nav>
+    </div>
+  </section>
+</Base>

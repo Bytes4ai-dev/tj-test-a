@@ -17,7 +17,15 @@ if [ -n "${PRELAUNCH_DENY_EMAIL:-}" ]; then
   r="$(grep -rIFnoi -- "$PRELAUNCH_DENY_EMAIL" "$DIR")" && hit "RP personal email" "$(echo "$r" | sed 's/:.*@/:<redacted>@/')"
 fi
 r="$(scan '(AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{35}|gh[pousr]_[0-9A-Za-z]{30,}|xox[abprs]-[0-9A-Za-z-]{10,}|sk-[A-Za-z0-9_-]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.)')" && hit "secret-looking token" "$r"
-r="$(grep -rIFno -- '[TEST]' "$DIR")" && hit "[TEST] fixture marker" "$r"
+allow_test=0
+# FIXTURES-HOOK-BEGIN (TJD-645 DEV fixture build only; removed by scripts/remove-fixtures.sh)
+if [ "${PRELAUNCH_ALLOW_FIXTURES:-0}" = 1 ] && [ "${TJ_SITE_ENV:-}" != production ]; then
+  allow_test=1; echo "prelaunch-check: [TEST] allowed (DEV fixture build, TJ_SITE_FIXTURES=1)"
+fi
+# FIXTURES-HOOK-END
+if [ "$allow_test" != 1 ]; then
+  r="$(grep -rIFno -- '[TEST]' "$DIR")" && hit "[TEST] fixture marker" "$r"
+fi
 [ -e "$DIR/PRELAUNCH-CHECKLIST.md" ] && hit "checklist in build" "$DIR/PRELAUNCH-CHECKLIST.md"
 
 if [ "$fail" -ne 0 ]; then echo "prelaunch-check: FAIL ($DIR)"; exit 1; fi

@@ -142,3 +142,9 @@ legend { font-weight: 600; padding: 0 6px; }
 .prose { max-width: 70ch; }
 blockquote { margin: 1.5rem 0; padding: 12px 18px; border-left: 6px solid var(--accent); font-family: var(--font-head); font-size: 1.3rem; }
 .callout { border: 3px solid var(--line); border-radius: 16px; padding: 16px; background: var(--surface); }
+
+/* Insights search + post list (TJD-645) */
+.search-box { display: block; width: 100%; max-width: 32rem; min-height: 44px; margin: 6px 0 16px; padding: 8px 12px; border: 3px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--fg); font: inherit; }
+.post-list { list-style: none; padding: 0; display: grid; gap: 16px; }
+.post-item h2 { margin: 0.2rem 0; font-size: 1.3rem; }
+.post-item[hidden] { display: none; }

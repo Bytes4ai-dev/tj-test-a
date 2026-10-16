@@ -1,5 +1,14 @@
 ---
+// Insights archive (TJD-645): every post in the `posts` collection, newest first, with in-page search, tag and year
+// filters and a live result count. Filtering runs in the browser on the rendered list: no requests after load.
 import Base from '../layouts/Base.astro';
+import PostList from '../components/PostList.astro';
+import { getPosts, TAGS, PAGE_SIZE, yearOf } from '../lib/posts.mjs';
+
+const posts = await getPosts();
+const tags = [...new Set([...TAGS, ...posts.flatMap((p) => p.data.tags)])];
+const years = [...new Set(posts.map(yearOf))].sort((a, b) => b - a);
+const pages = Math.ceil(posts.length / PAGE_SIZE);
 ---
 
 <Base
@@ -11,11 +20,65 @@ import Base from '../layouts/Base.astro';
   <section>
     <div class="wrap">
       <h1>Insights</h1>
-      <div class="card placeholder">
-        <p class="label">Placeholder</p>
-        <p>Posts, search and tag filters arrive in the next phase. This page shows the layout only.</p>
-        <p><a href="/posts/sample/">See the post layout</a></p>
-      </div>
+      <p><a href="/rss.xml">RSS feed</a>{pages > 1 && <> · <a href="/insights/archive/1/">Archive by page</a></>}</p>
+      {posts.length === 0 ? (
+        <div class="card placeholder">
+          <p class="label">Placeholder</p>
+          <p>No posts yet.</p>
+          <p><a href="/posts/sample/">See the post layout</a></p>
+        </div>
+      ) : (
+        <div data-insights>
+          <label for="post-search" class="label">Search posts</label>
+          <input id="post-search" type="search" class="search-box" autocomplete="off" data-search />
+          <p class="label" id="tag-filter-label">Tag</p>
+          <div class="filter-chips" role="group" aria-labelledby="tag-filter-label">
+            <button type="button" aria-pressed="true" data-tag="">All</button>
+            {tags.map((t) => <button type="button" aria-pressed="false" data-tag={t}>{t}</button>)}
+          </div>
+          <p class="label" id="year-filter-label">Year</p>
+          <div class="filter-chips" role="group" aria-labelledby="year-filter-label">
+            <button type="button" aria-pressed="true" data-year="">All</button>
+            {years.map((y) => <button type="button" aria-pressed="false" data-year={y}>{y}</button>)}
+          </div>
+          <p class="mono" aria-live="polite" data-count>{posts.length} {posts.length === 1 ? 'post' : 'posts'}</p>
+          <PostList posts={posts} />
+        </div>
+      )}
     </div>
   </section>
+  <script is:inline>
+    (function () {
+      var root = document.querySelector('[data-insights]');
+      if (!root) return;
+      var state = { q: '', tag: '', year: '' };
+      var items = root.querySelectorAll('[data-post]');
+      var count = root.querySelector('[data-count]');
+      function apply() {
+        var n = 0;
+        items.forEach(function (li) {
+          var show = (!state.q || li.dataset.text.indexOf(state.q) !== -1) &&
+            (!state.tag || li.dataset.tags.split('|').indexOf(state.tag) !== -1) &&
+            (!state.year || li.dataset.year === state.year);
+          li.hidden = !show;
+          if (show) n++;
+        });
+        count.textContent = n + (n === 1 ? ' post' : ' posts');
+      }
+      root.querySelector('[data-search]').addEventListener('input', function (e) {
+        state.q = e.target.value.trim().toLowerCase();
+        apply();
+      });
+      ['tag', 'year'].forEach(function (key) {
+        var buttons = root.querySelectorAll('button[data-' + key + ']');
+        buttons.forEach(function (b) {
+          b.addEventListener('click', function () {
+            state[key] = b.dataset[key];
+            buttons.forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+            apply();
+          });
+        });
+      });
+    })();
+  </script>
 </Base>

@@ -8,6 +8,7 @@ Every item below must be resolved by RP (or confirmed as-is) before the site goe
 - [ ] **Photo.** About uses an initials avatar ("RS"). Supply a photo if wanted.
 - [ ] **Domain.** `site.url` defaults to `http://localhost:8080` (override with `SITE_URL` at build). og:url / og:image use it, so set it to the DEV URL for the DEV deploy and to the real domain before launch. Ownership of bytes4ai.com is still open.
 - [ ] **Unpublished drafts.** Location still to be supplied (Phase 3).
+- [ ] **[TEST] fixture archive (TJD-645).** DEV builds with `TJ_SITE_FIXTURES=1` show ~40 placeholder "[TEST]" posts. Before launch run `bash scripts/remove-fixtures.sh` (deletes `src/content/fixtures/` and the env hook) and build with `TJ_SITE_ENV=production`, which fails on any fixture entry.
 
 ## Platform statuses (re-check against Jira on the day of publishing)
 Regenerate with `bash scripts/platform-status.sh` (writes `src/data/platform-status.json` with JQL + generated_at). Status at build:
