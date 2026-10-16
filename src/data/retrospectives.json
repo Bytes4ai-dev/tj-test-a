@@ -1,0 +1,5 @@
+{
+  "_about": "TJD-644: ONE publish date for all 12 Timeline retrospectives = the day they are merged (PL ruling 57018 (a)). They were written in 2026; no 2024/2025 publish date is ever shown. Change this one value if the merge lands on another day. byline: the posts are drafted for Bytes4AI and are not in RP's name (57018 (d)); see PRELAUNCH-CHECKLIST.md.",
+  "published": "2026-10-16",
+  "byline": "Bytes4AI"
+}

@@ -1,0 +1,51 @@
+---
+// TJD-644 retrospective page. Same parts as the post template (TJD-643): tag, title, byline, publish date, reading
+// time, hero illustration, chart/diagram with a source caption, body, "What to do about it" (one service, in the
+// body), numbered Sources, readiness CTA. Every image is an original SVG drawn by scripts/make-retro-visuals.py.
+import Base from '../../layouts/Base.astro';
+import { render } from 'astro:content';
+import { getRetros, published, byline, readingMinutes, visual } from '../../lib/retrospectives.mjs';
+
+export async function getStaticPaths() {
+  return (await getRetros()).map((r) => ({ params: { id: r.id }, props: { r } }));
+}
+const { r } = Astro.props;
+const { Content } = await render(r);
+const d = r.data;
+---
+
+<Base
+  title={d.title}
+  description={d.description}
+  ogImage="/og/timeline.png"
+  ogImageAlt={`Bytes4AI Timeline: ${d.title}`}
+  ogType="article"
+  published={published}
+>
+  <article class="wrap prose post retro" style="padding-top:2rem">
+    {d.fixture && <p class="banner" data-fixture-banner>Test fixture for the DEV site only. Placeholder text, not real content.</p>}
+    <p class="label"><a href="/timeline/">{d.year}</a> · {d.tag}</p>
+    <h1>{d.title}</h1>
+    <p class="mono post-meta">{byline} · Published <time datetime={published}>{published}</time> · {readingMinutes(r)} min read</p>
+    <p class="callout written-note" data-written-note>Written in 2026, looking back at {d.year}. This is a retrospective, not a report from the time.</p>
+    <figure class="post-hero retro-hero">
+      <img src={visual(r, 'hero')} alt={d.heroAlt} width="1200" height="400" />
+    </figure>
+    <div class="post-body">
+      <Content />
+    </div>
+    <figure class="post-chart retro-chart">
+      <img src={visual(r, 'chart')} alt={d.chart.alt} width="1200" height="675" loading="lazy" />
+      <figcaption class="mono">{d.chart.caption} Source: <a href={d.chart.sourceUrl} rel="noopener">{new URL(d.chart.sourceUrl).hostname}</a>.</figcaption>
+    </figure>
+    <section class="post-sources" aria-label="Sources">
+      <h2>Sources</h2>
+      <ol>{d.sources.map((s, i) => <li id={`source-${i + 1}`}><a href={s.url} rel="noopener">{s.title}</a></li>)}</ol>
+    </section>
+    <div class="card post-cta">
+      <p class="label">Agent Readiness Check</p>
+      <p><a class="btn" href="/#readiness">Take the readiness check</a></p>
+    </div>
+    <p><a href="/timeline/">All retrospectives</a></p>
+  </article>
+</Base>

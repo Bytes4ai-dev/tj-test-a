@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TJD-641 + TJD-643 static checks on a fresh build. No network, no Jira. Exit 0 = all pass.
+# TJD-641 + TJD-643 + TJD-644 static checks on a fresh build. No network, no Jira. Exit 0 = all pass.
 #   tokens file holds only the six colors + three fonts; every page has OG/twitter tags and its og:image exists;
 #   Experience strip == data/experience.json == TJD-640 facts; Platform banner + JSON-sourced numbers;
 #   checklist not in dist; deny-list red-before (planted phone number) then clean.
@@ -22,6 +22,7 @@ grep -rnoiE '#[0-9a-f]{3,8}\b' src --include=*.astro --include=*.css | grep -v '
 SITE="$(node -e "import('./src/config/site.mjs').then(m => console.log(m.site.url.replace(/\/\$/, '')))")"
 pages="index about/index platform/index insights/index timeline/index"
 for f in src/content/posts/*.md; do pages="$pages posts/$(basename "$f" .md)/index"; done
+for f in src/content/retrospectives/*.md; do pages="$pages timeline/$(basename "$f" .md)/index"; done  # TJD-644
 for p in $pages; do
   f="dist/$p.html"
   [ -f "$f" ] || { no "page $p missing"; continue; }
@@ -79,6 +80,7 @@ for f in glob.glob("dist/**/*.html", recursive=True):
 assert not bad, bad[:5]
 PY2
 python3 tests/rss-check.py dist "$SITE" >/dev/null && ok "rss.xml valid, 15 items newest first" || no "rss.xml"
+python3 tests/retro-check.py dist >/dev/null && ok "TJD-644 retrospectives (retro-check.py: 5/4/3, claim-check, own SVGs, dates)" || no "retro-check.py"
 
 # 3. experience strip text
 want="$(python3 -c 'import json; d=json.load(open("src/data/experience.json")); print("\n".join(d["facts"]+[" · ".join(d["certs"])]))')"
