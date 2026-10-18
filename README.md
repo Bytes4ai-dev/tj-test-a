@@ -18,3 +18,4 @@ Astro static site for the rv-demo project `bytes4ai-site` (TJD-640 / TJD-641 Pha
 - Visuals: `python3 scripts/make-retro-visuals.py` writes `public/timeline/<id>/{hero,chart}.svg`; `--check` verifies the committed files.
 - Claims: `node scripts/claim-check.mjs dist` (after `npm run build`) lists every paragraph with a number or named study and fails on any without a link or [n] source.
 - Checks: `python3 tests/retro-check.py dist` (also run by `tests/site-check.sh`).
+Infra fixture TJD-545
